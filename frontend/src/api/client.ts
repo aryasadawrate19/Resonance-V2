@@ -14,12 +14,29 @@ export async function analyzeImage(
 ): Promise<AnalyzeResponse> {
   const formData = new FormData();
   formData.append('image', imageFile);
-  formData.append('lifestyle', JSON.stringify(lifestyle));
 
-  const response = await api.post<AnalyzeResponse>('/api/analyze', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return response.data;
+  try {
+    formData.append('lifestyle', JSON.stringify(lifestyle));
+  } catch {
+    console.warn('Failed to serialize lifestyle payload. Falling back to empty object.');
+    formData.append('lifestyle', '{}');
+  }
+
+  try {
+    const response = await api.post<AnalyzeResponse>('/api/analyze', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const detail =
+        (typeof error.response?.data?.detail === 'string' && error.response.data.detail) ||
+        (typeof error.response?.data?.error === 'string' && error.response.data.error) ||
+        error.message;
+      throw new Error(detail);
+    }
+    throw error;
+  }
 }
 
 export async function simulateTreatment(

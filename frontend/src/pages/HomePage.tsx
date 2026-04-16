@@ -9,9 +9,10 @@ import { analyzeImage } from '../api/client';
 
 interface Props {
   onAnalysisComplete: (data: AnalyzeResponse, lifestyle: LifestyleInput) => void;
+  onAnalysisError: (error: string | null) => void;
 }
 
-export default function HomePage({ onAnalysisComplete }: Props) {
+export default function HomePage({ onAnalysisComplete, onAnalysisError }: Props) {
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [lifestyle, setLifestyle] = useState<LifestyleInput>({
@@ -24,22 +25,42 @@ export default function HomePage({ onAnalysisComplete }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const handleFileSelect = (file: File | null) => {
+    setSelectedFile(file);
+    setError(null);
+    onAnalysisError(null);
+  };
+
   const handleAnalyze = async () => {
     if (!selectedFile) return;
     setLoading(true);
     setError(null);
+    onAnalysisError(null);
 
     try {
       const result = await analyzeImage(selectedFile, lifestyle);
       if (result.error) {
-        setError(result.error);
+        const errorMsg = result.error;
+        setError(errorMsg);
+        onAnalysisError(errorMsg);
+        navigate('/results');
         return;
       }
+
+      if (result.face_detected === false || result.zones_approximate === true) {
+        const rejectionMsg = "We couldn't clearly map a front-facing profile. To ensure accurate results, please upload a strictly front-facing selfie looking directly at the camera.";
+        setError(rejectionMsg);
+        onAnalysisError(rejectionMsg);
+        return;
+      }
+
       onAnalysisComplete(result, lifestyle);
       navigate('/results');
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Analysis failed. Is the backend running?';
       setError(errorMsg);
+      onAnalysisError(errorMsg);
+      navigate('/results');
     } finally {
       setLoading(false);
     }
@@ -76,7 +97,7 @@ export default function HomePage({ onAnalysisComplete }: Props) {
 
             <div style={{ width: '100%', maxWidth: 600 }}>
               <ImageUpload
-                onFileSelect={setSelectedFile}
+                onFileSelect={handleFileSelect}
                 selectedFile={selectedFile}
               />
             </div>

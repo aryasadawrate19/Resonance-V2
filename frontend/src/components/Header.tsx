@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Activity } from 'lucide-react';
+import { Activity, HelpCircle } from 'lucide-react';
 
 export default function Header() {
   const location = useLocation();
@@ -19,6 +19,23 @@ export default function Header() {
           <Link to="/" className={isActive('/')}>Analyze</Link>
           <Link to="/results" className={isActive('/results')}>Results</Link>
           <Link to="/dashboard" className={isActive('/dashboard')}>Dashboard</Link>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            aria-label="Open product requirements document"
+            onClick={() => window.open('/DermaTwin_PRD.html', '_blank')}
+            style={{
+              borderRadius: '50%',
+              width: 34,
+              height: 34,
+              padding: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <HelpCircle size={16} />
+          </button>
         </nav>
       </div>
     </header>

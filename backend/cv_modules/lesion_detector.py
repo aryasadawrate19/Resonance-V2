@@ -38,7 +38,7 @@ class LesionDetector:
                 logger.warning(f"Failed to load YOLOv8: {e}")
                 self._yolo_model = None
         else:
-            logger.info("No acne-specific YOLO weights found. Using OpenCV fallback.")
+            logger.warning("YOLO weights missing at backend/models/acne_yolov8.pt; falling back to OpenCV lesion detection.")
 
     def detect(self, image_rgb: np.ndarray, face_mask: Optional[np.ndarray] = None) -> list:
         """
@@ -59,31 +59,18 @@ class LesionDetector:
 
     def _yolo_detect(self, image_rgb: np.ndarray, face_mask: Optional[np.ndarray]) -> list:
         """YOLOv8 inference for lesion detection."""
-        results = self._yolo_model(image_rgb, verbose=False)
+        results = self._yolo_model(image_rgb, conf=0.15, iou=0.4, verbose=False)
         lesions = []
 
         for i, box in enumerate(results[0].boxes):
             x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
             conf = float(box.conf[0])
-            cls_id = int(box.cls[0])
-
-            # Map YOLO class to type hint
-            cls_names = results[0].names
-            cls_name = cls_names.get(cls_id, "other")
-
-            # Type hint mapping
-            if "inflam" in cls_name.lower() or "papule" in cls_name.lower() or "pustule" in cls_name.lower():
-                type_hint = "inflammatory"
-            elif "comedo" in cls_name.lower() or "blackhead" in cls_name.lower() or "whitehead" in cls_name.lower():
-                type_hint = "comedonal"
-            else:
-                type_hint = "other"
 
             lesions.append({
                 "id": f"L{i + 1:03d}",
                 "bbox": [int(x1), int(y1), int(x2), int(y2)],
                 "confidence": round(conf, 3),
-                "type_hint": type_hint,
+                "type_hint": "inflammatory",
             })
 
         return lesions
@@ -274,12 +261,16 @@ class LesionDetector:
         for contour in contours:
             area = cv2.contourArea(contour)
             min_area = proc_area * 0.0003
-            max_area = proc_area * 0.04
+            max_area = proc_area * 0.015
 
             if min_area < area < max_area:
                 x, y, bw, bh = cv2.boundingRect(contour)
+
+                if bw > (pw * 0.15) or bh > (ph * 0.15):
+                    continue
+
                 aspect = max(bw, bh) / (min(bw, bh) + 1)
-                if aspect < 5:
+                if aspect < 3:
                     lesions.append({
                         "bbox": [int(x / scale), int(y / scale),
                                  int((x + bw) / scale), int((y + bh) / scale)],

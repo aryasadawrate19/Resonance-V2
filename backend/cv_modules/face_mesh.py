@@ -45,6 +45,13 @@ FACE_OVAL_INDICES = [
     172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109,
 ]
 
+EXCLUDE_FEATURES = {
+    "left_eye": [263, 249, 390, 373, 374, 380, 381, 382, 362, 398, 384, 385, 386, 387, 388, 466],
+    "right_eye": [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
+    "mouth": [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95],
+    "nostrils": [2, 326, 97, 327, 278, 279, 48, 49, 98],
+}
+
 
 def _download_model():
     """Download the FaceLandmarker model bundle if not already present."""
@@ -230,10 +237,26 @@ class FaceMeshAnalyzer:
     def _create_face_mask(self, landmarks: list, w: int, h: int) -> np.ndarray:
         """Create a binary mask of the face region."""
         mask = np.zeros((h, w), dtype=np.uint8)
+
+        # Step 1: Fill the main face oval.
         valid = [i for i in FACE_OVAL_INDICES if i < len(landmarks)]
         if valid:
             points = np.array([landmarks[i] for i in valid], dtype=np.int32)
             cv2.fillPoly(mask, [points], 255)
+
+        # Step 2: Exclude eyes, mouth, and nostrils from the face mask.
+        for name, feature_indices in EXCLUDE_FEATURES.items():
+            feature_valid = [i for i in feature_indices if i < len(landmarks)]
+            if len(feature_valid) < 3:
+                continue
+
+            feature_points = np.array([landmarks[i] for i in feature_valid], dtype=np.int32)
+            hull = cv2.convexHull(feature_points)
+
+            cv2.fillPoly(mask, [hull], 0)
+            border_thickness = 35 if "eye" in name else 15
+            cv2.polylines(mask, [hull], isClosed=True, color=0, thickness=border_thickness)
+
         return mask
 
     def _haar_fallback(self, image_rgb: np.ndarray) -> dict:

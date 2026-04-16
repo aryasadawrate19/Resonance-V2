@@ -268,3 +268,8 @@ class HybridSkinAnalyzer:
 # Module-level access
 def get_hybrid_analyzer() -> HybridSkinAnalyzer:
     return HybridSkinAnalyzer()
+
+
+def get_hybrid_model() -> HybridSkinAnalyzer:
+    """Backward-compatible alias for startup warm-up imports."""
+    return get_hybrid_analyzer()

@@ -13,10 +13,18 @@ venv/
 env/
 .venv/
 .env
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
 
 # Model weights
 backend/models/*.pt
 backend/models/*.task
+
+# Runtime scan data
+backend/data/history/*.json
 
 # IDE / OS
 .vscode/

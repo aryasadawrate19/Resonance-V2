@@ -100,8 +100,8 @@ export default function SkinScoreCard({ score, breakdown, severity, severityConf
         </div>
       </div>
 
-      <div style={{ marginTop: 16, fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-        Source: {severitySource} • Confidence: {(severityConfidence * 100).toFixed(1)}%
+      <div style={{ marginTop: 16, fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+        Classified by: {severitySource} · {Math.round(severityConfidence * 100)}% confidence
       </div>
     </div>
   );

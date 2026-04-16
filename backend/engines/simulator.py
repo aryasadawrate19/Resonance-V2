@@ -68,6 +68,8 @@ def simulate(
     """
     total_acne_delta = 0.0
     total_pigment_delta = 0.0
+    acne_multiplier = 1.0
+    pigment_multiplier = 1.0
     details = []
 
     for intervention_key in interventions:
@@ -78,8 +80,10 @@ def simulate(
         acne_delta = intervention["acne_impact_2w"]
         pigment_delta = intervention["pigmentation_4w"]
 
-        total_acne_delta += acne_delta
-        total_pigment_delta += pigment_delta
+        total_acne_delta += acne_delta * acne_multiplier
+        total_pigment_delta += pigment_delta * pigment_multiplier
+        acne_multiplier *= 0.7
+        pigment_multiplier *= 0.7
 
         details.append({
             "key": intervention_key,

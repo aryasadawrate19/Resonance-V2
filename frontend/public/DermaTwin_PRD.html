@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DermaTwin — Project Requirements Document</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink: #0d1117;
+    --paper: #fafaf8;
+    --accent: #1a6b4a;
+    --accent2: #c84b31;
+    --accent3: #1e4080;
+    --muted: #6b7280;
+    --rule: #e5e1d8;
+    --highlight: #f0ebe0;
+    --code-bg: #f4f1ec;
+    --tag-green: #d1fae5;
+    --tag-green-text: #065f46;
+    --tag-red: #fee2e2;
+    --tag-red-text: #991b1b;
+    --tag-blue: #dbeafe;
+    --tag-blue-text: #1e40af;
+    --tag-amber: #fef3c7;
+    --tag-amber-text: #92400e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── SIDEBAR TOC ── */
+  .toc {
+    position: fixed;
+    left: 0; top: 0;
+    width: 220px;
+    height: 100vh;
+    background: var(--ink);
+    color: #c9d1d9;
+    padding: 28px 20px;
+    overflow-y: auto;
+    z-index: 100;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+  }
+  .toc-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .toc-sub { color: #6b7280; font-size: 10px; margin-bottom: 24px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .toc-section { margin-bottom: 6px; }
+  .toc-section a {
+    color: #8b949e;
+    text-decoration: none;
+    display: block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+  .toc-section a:hover { background: #1f2937; color: #e5e7eb; }
+  .toc-section a.active { background: var(--accent); color: #fff; }
+  .toc-num { color: #4b5563; margin-right: 6px; }
+  .toc-divider { border: none; border-top: 1px solid #1f2937; margin: 16px 0; }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    margin-left: 220px;
+    padding: 0 64px 120px 64px;
+    max-width: 1000px;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 0 60px;
+    border-bottom: 2px solid var(--ink);
+    position: relative;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -64px; right: -64px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent2));
+  }
+  .cover-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .cover-eyebrow {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+  .cover-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 80px;
+    line-height: 0.95;
+    letter-spacing: -2px;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .cover-title span { color: var(--accent); }
+  .cover-subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 560px;
+    margin-bottom: 48px;
+    line-height: 1.5;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    max-width: 700px;
+  }
+  .cover-meta-cell {
+    background: var(--paper);
+    padding: 16px 20px;
+  }
+  .cover-meta-label { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+  .cover-meta-value { font-size: 13px; font-weight: 600; color: var(--ink); }
+
+  /* ── TYPOGRAPHY ── */
+  .section { padding: 72px 0 0; }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+    color: var(--ink);
+    margin-bottom: 8px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 8px;
+  }
+  h2 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 40px 0 12px;
+    padding-left: 16px;
+    border-left: 3px solid var(--accent);
+  }
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent3);
+    margin: 28px 0 8px;
+  }
+  p { margin-bottom: 16px; color: #374151; max-width: 680px; }
+  
+  .lead {
+    font-size: 17px;
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1.65;
+    max-width: 640px;
+    margin-bottom: 24px;
+  }
+
+  blockquote {
+    margin: 24px 0;
+    padding: 20px 24px;
+    background: var(--highlight);
+    border-left: 4px solid var(--accent);
+    font-style: italic;
+    color: #374151;
+    font-size: 15px;
+  }
+  blockquote cite { display: block; margin-top: 8px; font-style: normal; font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  /* ── TABLES ── */
+  .table-wrap { overflow-x: auto; margin: 20px 0 32px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead th {
+    background: var(--ink);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tbody tr:nth-child(even) td { background: #f7f5f0; }
+  tbody tr:hover td { background: var(--highlight); }
+  td:first-child { font-weight: 500; color: var(--ink); }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10.5px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .tag-green { background: var(--tag-green); color: var(--tag-green-text); }
+  .tag-red { background: var(--tag-red); color: var(--tag-red-text); }
+  .tag-blue { background: var(--tag-blue); color: var(--tag-blue-text); }
+  .tag-amber { background: var(--tag-amber); color: var(--tag-amber-text); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    margin: 24px 0;
+    padding: 20px 24px;
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent3);
+    background: #f8faff;
+    border-radius: 0 4px 4px 0;
+  }
+  .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent3);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .callout p { max-width: 100%; margin-bottom: 0; }
+
+  .callout-warn { border-left-color: var(--accent2); background: #fff9f8; }
+  .callout-warn .callout-label { color: var(--accent2); }
+  .callout-success { border-left-color: var(--accent); background: #f0fdf4; }
+  .callout-success .callout-label { color: var(--accent); }
+
+  /* ── TIMELINE ── */
+  .timeline { margin: 20px 0; }
+  .timeline-day {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0;
+    margin-bottom: 0;
+  }
+  .timeline-day-left {
+    padding: 16px 20px 16px 0;
+    border-right: 2px solid var(--rule);
+    position: relative;
+  }
+  .timeline-day-left::after {
+    content: '';
+    position: absolute;
+    right: -7px; top: 22px;
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: 2px solid var(--paper);
+  }
+  .timeline-day-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .timeline-day-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .timeline-day-right { padding: 14px 0 14px 24px; }
+  .timeline-day-title { font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 6px; }
+  .timeline-tasks { list-style: none; }
+  .timeline-tasks li { font-size: 13px; color: #4b5563; padding: 2px 0; }
+  .timeline-tasks li::before { content: '→ '; color: var(--accent); font-family: 'DM Mono', monospace; }
+
+  /* ── MODULE CARDS ── */
+  .module-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .module-card {
+    border: 1px solid var(--rule);
+    padding: 20px;
+    border-radius: 4px;
+    background: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+  .module-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .module-card.green::before { background: #22c55e; }
+  .module-card.red::before { background: #ef4444; }
+  .module-card.blue::before { background: #3b82f6; }
+  .module-card.purple::before { background: #8b5cf6; }
+  .module-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .module-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .module-desc { font-size: 13px; color: #4b5563; line-height: 1.5; }
+  .module-spec { margin-top: 12px; }
+  .module-spec-item { font-size: 12px; color: #6b7280; padding: 2px 0; font-family: 'DM Mono', monospace; }
+  .module-spec-item::before { content: '• '; color: var(--accent); }
+
+  /* ── STACK GRID ── */
+  .stack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+  .stack-card {
+    border: 1px solid var(--rule);
+    padding: 16px;
+    border-radius: 4px;
+  }
+  .stack-layer { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+  .stack-tech { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .stack-reason { font-size: 12px; color: #6b7280; line-height: 1.4; }
+
+  /* ── SCORE CARD ── */
+  .score-card {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 24px;
+    border: 1px solid var(--rule);
+    padding: 24px;
+    border-radius: 4px;
+    margin: 20px 0;
+    align-items: center;
+  }
+  .score-big {
+    font-family: 'DM Serif Display', serif;
+    font-size: 72px;
+    color: var(--accent);
+    line-height: 1;
+    text-align: center;
+  }
+  .score-label { font-family: 'DM Mono', monospace; font-size: 10px; text-align: center; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .score-bars { }
+  .score-bar-item { margin-bottom: 12px; }
+  .score-bar-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+  .score-bar-track { height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+
+  /* ── API TABLE ── */
+  .api-row { display: grid; grid-template-columns: 60px 200px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); align-items: start; }
+  .method { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 2px; display: inline-block; }
+  .method.post { background: #fef3c7; color: #92400e; }
+  .method.get { background: #d1fae5; color: #065f46; }
+  .endpoint { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--ink); }
+  .endpoint-desc { font-size: 13px; color: #4b5563; }
+
+  /* ── PRINT ── */
+  @media print {
+    .toc { display: none; }
+    .main { margin-left: 0; padding: 40px; }
+    .cover { min-height: auto; page-break-after: always; }
+    h1 { page-break-before: always; }
+  }
+
+  /* ── SCROLLBAR ── */
+  .toc::-webkit-scrollbar { width: 4px; }
+  .toc::-webkit-scrollbar-thumb { background: #374151; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR TOC -->
+<nav class="toc">
+  <div class="toc-brand">DermaTwin</div>
+  <div class="toc-sub">PRD v1.0</div>
+  <div class="toc-section"><a href="#cover"><span class="toc-num">00</span> Cover</a></div>
+  <hr class="toc-divider"/>
+  <div class="toc-section"><a href="#overview"><span class="toc-num">01</span> Project Overview</a></div>
+  <div class="toc-section"><a href="#problem"><span class="toc-num">02</span> Problem Statement</a></div>
+  <div class="toc-section"><a href="#goals"><span class="toc-num">03</span> Goals & Success Criteria</a></div>
+  <div class="toc-section"><a href="#modules"><span class="toc-num">04</span> Required Modules</a></div>
+  <div class="toc-section"><a href="#differentiators"><span class="toc-num">05</span> Differentiating Features</a></div>
+  <div class="toc-section"><a href="#overlays"><span class="toc-num">06</span> Visual Overlay Spec</a></div>
+  <div class="toc-section"><a href="#stack"><span class="toc-num">07</span> Tech Stack</a></div>
+  <div class="toc-section"><a href="#api"><span class="toc-num">08</span> API Design</a></div>
+  <div class="toc-section"><a href="#sprint"><span class="toc-num">09</span> 7-Day Sprint Plan</a></div>
+  <div class="toc-section"><a href="#risks"><span class="toc-num">10</span> Risks & Mitigations</a></div>
+  <div class="toc-section"><a href="#pitch"><span class="toc-num">11</span> Pitch Framework</a></div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- COVER -->
+  <section class="cover" id="cover">
+    <span class="cover-eyebrow">CLINDERMA Hackathon 2025</span>
+    <div class="cover-label">Project Requirements Document · v1.0 · April 2025</div>
+    <h1 class="cover-title">Derma<span>Twin</span></h1>
+    <p class="cover-subtitle">AI Skin Digital Twin + Predictive Skin Simulator — a facial skin screening tool that diagnoses, predicts, and simulates.</p>
+    <div class="cover-meta">
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Type</div>
+        <div class="cover-meta-value">Web App</div>
+      </div>
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Timeline</div>
+        <div class="cover-meta-value">7 Days</div>
+      </div>
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Status</div>
+        <div class="cover-meta-value" style="color:var(--accent)">Pre-Build</div>
+      </div>
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Sponsor</div>
+        <div class="cover-meta-value">CLINDERMA</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 OVERVIEW -->
+  <section class="section" id="overview">
+    <span class="section-num">01</span>
+    <h1>Project Overview</h1>
+    <p class="lead">DermaTwin is a web application that transforms a single face photograph into a complete, personalized skin health intelligence report — with annotated overlays, severity grading, a predictive engine, treatment simulation, and an AI-generated skincare routine.</p>
+
+    <p>Most competing teams will build a basic classifier. DermaTwin's strategy is to reframe the problem: users don't need to be told they have acne — they can see it. What they need is <strong>severity, trajectory, and actionable guidance</strong>. This document defines exactly how to build that in one week.</p>
+
+    <div class="callout callout-success">
+      <div class="callout-label">Core Differentiator</div>
+      <p><strong>Not just detection → prediction + simulation.</strong> DermaTwin is the only solution in this hackathon that tells users where their skin is heading and what happens if they change their habits — making it feel like a real product, not a demo.</p>
+    </div>
+  </section>
+
+  <!-- 02 PROBLEM -->
+  <section class="section" id="problem">
+    <span class="section-num">02</span>
+    <h1>Problem Statement</h1>
+
+    <h2>Background</h2>
+    <p>Access to dermatological care is out of reach for millions due to high consultation costs, long wait times, and geographic barriers. In India, there is approximately one dermatologist per 200,000 people. Early and accurate detection of skin conditions is critical for effective treatment — yet most individuals have no immediate, accessible way to assess their skin health at home.</p>
+
+    <h2>Sponsor Requirement (Verbatim)</h2>
+    <blockquote>
+      "Build an AI-driven web or mobile application that allows users to upload a clear photograph of their face and receive an automated, non-diagnostic skin health report. The tool must analyze the image across multiple dimensions and deliver structured, visual results with overlay annotations directly on the uploaded photograph, using computer vision and/or machine learning."
+      <cite>— CLINDERMA Problem Statement</cite>
+    </blockquote>
+
+    <h2>Key Insight</h2>
+    <p>The sponsor spec is a floor, not a ceiling. Every team will meet the detection requirements. DermaTwin meets them <em>and</em> adds a prediction + simulation layer that makes the product memorable and judge-winning.</p>
+  </section>
+
+  <!-- 03 GOALS -->
+  <section class="section" id="goals">
+    <span class="section-num">03</span>
+    <h1>Goals & Success Criteria</h1>
+
+    <h2>Primary Goals</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Requirement</th><th>Deliverable</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td>Acne severity grading</td><td>Clear / Mild / Moderate / Severe with labeled indicator</td><td><span class="tag tag-red">Critical</span></td></tr>
+          <tr><td>Lesion count + bounding boxes</td><td>Color-coded boxes (green/red/blue) with lesion IDs</td><td><span class="tag tag-red">Critical</span></td></tr>
+          <tr><td>Facial zone mapping</td><td>5-zone segmentation overlay on image</td><td><span class="tag tag-red">Critical</span></td></tr>
+          <tr><td>Hyperpigmentation overlay</td><td>Traced boundary outlines + coverage percentage</td><td><span class="tag tag-red">Critical</span></td></tr>
+          <tr><td>Visual overlays on photo</td><td>All annotations drawn directly on the uploaded image</td><td><span class="tag tag-red">Critical</span></td></tr>
+          <tr><td>Predictive engine</td><td>7-day and 30-day skin projection with deltas</td><td><span class="tag tag-amber">High</span></td></tr>
+          <tr><td>Treatment simulation</td><td>Toggle interventions, see projected improvement</td><td><span class="tag tag-amber">High</span></td></tr>
+          <tr><td>AI routine generator</td><td>Morning/night routine via Gemini API</td><td><span class="tag tag-amber">High</span></td></tr>
+          <tr><td>Skin Health Score</td><td>0–100 composite score with dimension breakdown</td><td><span class="tag tag-blue">Medium</span></td></tr>
+          <tr><td>Progress dashboard</td><td>Multi-scan comparison charts</td><td><span class="tag tag-blue">Medium</span></td></tr>
+          <tr><td>Heatmap overlay</td><td>Lesion density heatmap on face</td><td><span class="tag tag-green">Bonus</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Skin Health Score — Composite Formula</h2>
+    <div class="score-card">
+      <div>
+        <div class="score-big">68</div>
+        <div class="score-label">Example Score</div>
+      </div>
+      <div class="score-bars">
+        <div class="score-bar-item">
+          <div class="score-bar-header"><span>Acne Severity (35%)</span><span style="color:var(--accent);font-weight:600">70</span></div>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:70%"></div></div>
+        </div>
+        <div class="score-bar-item">
+          <div class="score-bar-header"><span>Lesion Density (25%)</span><span style="color:var(--accent);font-weight:600">60</span></div>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:60%;background:var(--accent3)"></div></div>
+        </div>
+        <div class="score-bar-item">
+          <div class="score-bar-header"><span>Pigmentation (20%)</span><span style="color:var(--accent);font-weight:600">75</span></div>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:75%;background:#7c3aed"></div></div>
+        </div>
+        <div class="score-bar-item">
+          <div class="score-bar-header"><span>Zone Inflammation (20%)</span><span style="color:var(--accent);font-weight:600">65</span></div>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:65%;background:var(--accent2)"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 MODULES -->
+  <section class="section" id="modules">
+    <span class="section-num">04</span>
+    <h1>Required Analysis Modules</h1>
+    <p>All four modules are mandatory per the sponsor spec. Each must produce visual output overlaid directly on the uploaded photograph.</p>
+
+    <div class="module-grid">
+      <div class="module-card green">
+        <div class="module-num">Module 01</div>
+        <div class="module-title">Acne Severity Grading</div>
+        <div class="module-desc">Grade the overall acne condition across four severity levels with a labeled visual indicator.</div>
+        <div class="module-spec">
+          <div class="module-spec-item">Primary: Tinny-Robot/acne (HuggingFace) — diverse skin tones</div>
+          <div class="module-spec-item">Fallback: imfarzanansari/skintelligent-acne (HuggingFace)</div>
+          <div class="module-spec-item">API fallback: Roboflow Universe (no local GPU needed)</div>
+          <div class="module-spec-item">Scale: Clear → Mild → Moderate → Severe</div>
+          <div class="module-spec-item">Output: Severity badge + coverage %</div>
+          <div class="module-spec-item">Visual: Color-coded indicator bar</div>
+        </div>
+      </div>
+      <div class="module-card red">
+        <div class="module-num">Module 02</div>
+        <div class="module-title">Lesion Count & Bounding Boxes</div>
+        <div class="module-desc">Detect and classify individual lesions with color-coded bounding boxes and lesion ID labels.</div>
+        <div class="module-spec">
+          <div class="module-spec-item">Count ranges: 0–2, 3–5, 5–10, 11–15, 15+</div>
+          <div class="module-spec-item">Comedonal: green box (#22C55E)</div>
+          <div class="module-spec-item">Inflammatory: red box (#EF4444)</div>
+          <div class="module-spec-item">Other: blue box (#3B82F6)</div>
+        </div>
+      </div>
+      <div class="module-card blue">
+        <div class="module-num">Module 03</div>
+        <div class="module-title">Facial Zone Mapping</div>
+        <div class="module-desc">Segment the face into 5 anatomical zones and highlight affected areas with translucent overlays.</div>
+        <div class="module-spec">
+          <div class="module-spec-item">Zones: forehead, L/R cheeks, nose, chin/jawline</div>
+          <div class="module-spec-item">Implementation: MediaPipe Face Mesh (468 landmarks)</div>
+          <div class="module-spec-item">No training required — ships Day 1</div>
+          <div class="module-spec-item">Opacity: 0.2, unique color per zone</div>
+        </div>
+      </div>
+      <div class="module-card purple">
+        <div class="module-num">Module 04</div>
+        <div class="module-title">Hyperpigmentation Overlay</div>
+        <div class="module-desc">Estimate dark spot coverage and trace boundary outlines over each pigmented region.</div>
+        <div class="module-spec">
+          <div class="module-spec-item">Technique: LAB color space + morphological ops</div>
+          <div class="module-spec-item">Coverage: 0–10%, 10–20%, 20–30%, 30%+</div>
+          <div class="module-spec-item">Output: Traced orange/dark-red boundary</div>
+          <div class="module-spec-item">No ML model needed — pure OpenCV</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 DIFFERENTIATORS -->
+  <section class="section" id="differentiators">
+    <span class="section-num">05</span>
+    <h1>Differentiating Features</h1>
+
+    <h2>Skin Digital Twin Profile</h2>
+    <p>On first use, DermaTwin creates a structured skin profile vector from CV outputs and a short lifestyle questionnaire. This profile powers all downstream prediction and simulation features.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Attribute</th><th>Source</th><th>Used For</th></tr></thead>
+        <tbody>
+          <tr><td>Skin type (oily/dry/combo)</td><td>User input</td><td>Routine generation, product matching</td></tr>
+          <tr><td>Melanin estimate</td><td>CV — ITA angle from image</td><td>Pigmentation baseline calibration</td></tr>
+          <tr><td>Acne severity score</td><td>CV — Module 01</td><td>Trajectory projection</td></tr>
+          <tr><td>Lesion count + type</td><td>CV — Module 02</td><td>Short-term prediction</td></tr>
+          <tr><td>Zone inflammation map</td><td>CV — Module 03</td><td>Affected area tracking over time</td></tr>
+          <tr><td>Dark spot coverage %</td><td>CV — Module 04</td><td>Pigmentation trend tracking</td></tr>
+          <tr><td>Sleep quality (1–5)</td><td>User input</td><td>Inflammation modifier in predictor</td></tr>
+          <tr><td>Diet quality (1–5)</td><td>User input</td><td>Acne trajectory modifier</td></tr>
+          <tr><td>Stress level (1–5)</td><td>User input</td><td>Breakout risk modifier</td></tr>
+          <tr><td>Climate zone</td><td>User input</td><td>Climate-aware routine recommendations</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Predictive Engine</h2>
+    <p>A rule-augmented projection model that answers: <em>"What will your skin look like in 7 and 30 days?"</em></p>
+    <div class="callout">
+      <div class="callout-label">Implementation Note</div>
+      <p>No longitudinal training data needed. Projections use evidence-based decay rates from published dermatology literature, modified by the user's lifestyle inputs. All output is framed as "evidence-based projection — not a medical diagnosis" to satisfy the sponsor's non-diagnostic requirement.</p>
+    </div>
+
+    <h3>Projection Formula</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Value</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>baseline_score</td><td>CV pipeline output</td><td>Modules 01–04</td></tr>
+          <tr><td>base_rate</td><td>+8% per week (no intervention)</td><td>Acne natural progression studies</td></tr>
+          <tr><td>lifestyle_modifier</td><td>-0.3 to +0.3 delta</td><td>Composite of sleep + diet + stress</td></tr>
+          <tr><td>projected_score</td><td>baseline × (1 + base_rate) × lifestyle_modifier</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Treatment Simulation</h2>
+    <p>Users toggle lifestyle/product interventions and see projected outcome deltas. Built with hardcoded decay curves framed as evidence-based estimates.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Intervention</th><th>Acne Impact (2 weeks)</th><th>Pigmentation (4 weeks)</th></tr></thead>
+        <tbody>
+          <tr><td>Salicylic acid (2%)</td><td>-30 to -40%</td><td>Minimal</td></tr>
+          <tr><td>Improved sleep (+2 hrs)</td><td>-15%</td><td>-5%</td></tr>
+          <tr><td>Reduced sugar intake</td><td>-20%</td><td>Minimal</td></tr>
+          <tr><td>Niacinamide serum</td><td>-10%</td><td>-25%</td></tr>
+          <tr><td>SPF 50 daily</td><td>Minimal</td><td>-20%</td></tr>
+          <tr><td>Hydration (+2L water)</td><td>-10%</td><td>-5%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>AI Routine Generator</h2>
+    <p>Powered by Gemini API (<code>gemini-2.0-flash</code>). Receives the full skin profile vector as a structured prompt and returns a personalized morning/night routine with:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Output Field</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Morning routine</td><td>Ordered steps: cleanser → treatment → moisturizer → SPF</td></tr>
+          <tr><td>Night routine</td><td>Ordered steps with active ingredients (retinoid strength, AHA %)</td></tr>
+          <tr><td>Priority ingredients</td><td>Based on detected conditions (e.g. salicylic for acne, niacinamide for pigmentation)</td></tr>
+          <tr><td>Budget tier</td><td>Budget / Mid-range / Premium options per step</td></tr>
+          <tr><td>Climate adjustment</td><td>Lighter textures for humid climates, richer for dry</td></tr>
+          <tr><td>Timeline</td><td>Expected improvement per recommendation in weeks</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 06 OVERLAYS -->
+  <section class="section" id="overlays">
+    <span class="section-num">06</span>
+    <h1>Visual Overlay Specification</h1>
+    <p>The annotated image output is the highest-priority deliverable for judge evaluation. All layers must be composited on the original uploaded photograph using an HTML5 Canvas.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Overlay Layer</th><th>Visual Style</th><th>Color/Opacity</th><th>Implementation</th></tr></thead>
+        <tbody>
+          <tr><td>Face Mesh Grid</td><td>Wireframe mesh over face</td><td>#22C55E at 30% opacity</td><td>MediaPipe landmarks → canvas lines</td></tr>
+          <tr><td>Lesion Box — Comedonal</td><td>2px border, lesion ID label</td><td>#22C55E (green)</td><td>YOLOv8 bbox → canvas rect</td></tr>
+          <tr><td>Lesion Box — Inflammatory</td><td>2px border, lesion ID label</td><td>#EF4444 (red)</td><td>YOLOv8 bbox → canvas rect</td></tr>
+          <tr><td>Lesion Box — Other</td><td>2px border, lesion ID label</td><td>#3B82F6 (blue)</td><td>YOLOv8 bbox → canvas rect</td></tr>
+          <tr><td>Hyperpigmentation Outline</td><td>1.5px traced boundary</td><td>#F97316 mild / #B91C1C severe</td><td>OpenCV contours → canvas path</td></tr>
+          <tr><td>Zone Segmentation</td><td>Translucent filled polygon per zone</td><td>Unique color, 20% opacity</td><td>MediaPipe landmark groups → canvas fill</td></tr>
+          <tr><td>Severity Badge</td><td>Top-right corner label</td><td>Color by severity</td><td>canvas.fillText()</td></tr>
+          <tr><td>Density Heatmap (Bonus)</td><td>Jet colormap layer</td><td>50% opacity over face</td><td>Gaussian KDE → canvas image</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-warn">
+      <div class="callout-label">Implementation Priority Warning</div>
+      <p>Nail the annotated image output before touching the predictive engine. Teams that submit a half-working simulator with a broken overlay will lose to a clean annotation with no extras. Visual output = judge's first impression.</p>
+    </div>
+  </section>
+
+  <!-- 07 STACK -->
+  <section class="section" id="stack">
+    <span class="section-num">07</span>
+    <h1>Technology Stack</h1>
+
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="stack-layer">Frontend</div>
+        <div class="stack-tech">React 18 + TypeScript + Vite</div>
+        <div class="stack-reason">Fast dev, familiar, component reuse across panels</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">Styling</div>
+        <div class="stack-tech">Tailwind CSS + shadcn/ui</div>
+        <div class="stack-reason">Rapid UI, consistent components, dark mode support</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">Canvas Rendering</div>
+        <div class="stack-tech">HTML5 Canvas API</div>
+        <div class="stack-reason">Real-time overlay drawing on uploaded image</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">Charts</div>
+        <div class="stack-tech">Chart.js + react-chartjs-2</div>
+        <div class="stack-reason">Progress dashboard, score breakdown, trends</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">Backend</div>
+        <div class="stack-tech">Python + FastAPI</div>
+        <div class="stack-reason">Async image processing, clean REST endpoints</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">Object Detection</div>
+        <div class="stack-tech">YOLOv8 — Tinny-Robot/acne</div>
+        <div class="stack-reason">Pre-trained for diverse skin tones (HuggingFace, Apache 2.0). Roboflow API as fallback.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">Face Mesh</div>
+        <div class="stack-tech">MediaPipe Face Mesh</div>
+        <div class="stack-reason">Zone segmentation, 468 landmarks, no training</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">Pigmentation</div>
+        <div class="stack-tech">OpenCV (LAB + morphology)</div>
+        <div class="stack-reason">Dark spot detection without ML overhead</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">AI Routine</div>
+        <div class="stack-tech">Gemini API (gemini-2.0-flash)</div>
+        <div class="stack-reason">Personalized routine gen, fast, free tier</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">Prediction</div>
+        <div class="stack-tech">Python rule-based logic</div>
+        <div class="stack-reason">No training data, evidence-based, ships fast</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">Explainability</div>
+        <div class="stack-tech">GradCAM (pytorch-grad-cam)</div>
+        <div class="stack-reason">Heatmap generation for bonus feature</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-layer">Deploy</div>
+        <div class="stack-tech">Vercel + Railway</div>
+        <div class="stack-reason">Free tier, fast deploy, minimal config</div>
+      </div>
+    </div>
+
+    <h2>CV Pipeline — Processing Order</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Step</th><th>Process</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Image preprocessing</td><td>640×640 normalized image, EXIF corrected</td></tr>
+          <tr><td>2</td><td>MediaPipe Face Mesh</td><td>468 landmarks → zone polygon coordinates</td></tr>
+          <tr><td>3</td><td>YOLOv8 inference</td><td>Lesion bboxes, class labels, confidence scores</td></tr>
+          <tr><td>4</td><td>OpenCV LAB segmentation</td><td>Hyperpigmentation masks + contours</td></tr>
+          <tr><td>5</td><td>Severity classification</td><td>Acne grade based on lesion count + area</td></tr>
+          <tr><td>6</td><td>Score computation</td><td>Weighted Skin Health Score 0–100</td></tr>
+          <tr><td>7</td><td>Canvas overlay composition</td><td>Annotated image (base64 PNG)</td></tr>
+          <tr><td>8</td><td>Prediction engine</td><td>7-day and 30-day projected scores</td></tr>
+          <tr><td>9</td><td>JSON response assembly</td><td>All outputs packaged for frontend</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 08 API -->
+  <section class="section" id="api">
+    <span class="section-num">08</span>
+    <h1>API Design</h1>
+
+    <h2>Endpoints</h2>
+    <div class="api-row" style="border-top:1px solid var(--rule)">
+      <span class="method post">POST</span>
+      <span class="endpoint">/api/analyze</span>
+      <span class="endpoint-desc">Upload face image + lifestyle inputs. Returns all module outputs + annotated image as base64 PNG.</span>
+    </div>
+    <div class="api-row">
+      <span class="method post">POST</span>
+      <span class="endpoint">/api/simulate</span>
+      <span class="endpoint-desc">Send current skin profile + selected intervention toggles. Returns projected deltas per intervention.</span>
+    </div>
+    <div class="api-row">
+      <span class="method post">POST</span>
+      <span class="endpoint">/api/routine</span>
+      <span class="endpoint-desc">Send skin profile vector. Calls Gemini API and returns structured morning/night routine JSON.</span>
+    </div>
+    <div class="api-row">
+      <span class="method get">GET</span>
+      <span class="endpoint">/api/history/:uid</span>
+      <span class="endpoint-desc">Retrieve all past scans for a user. Returns array of scan summaries with timestamps and scores.</span>
+    </div>
+    <div class="api-row">
+      <span class="method post">POST</span>
+      <span class="endpoint">/api/history</span>
+      <span class="endpoint-desc">Save current scan to history. Returns confirmation and scan ID for future retrieval.</span>
+    </div>
+
+    <h2>Analyze Response Schema</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>annotated_image</td><td>string (base64)</td><td>Fully annotated PNG with all overlays</td></tr>
+          <tr><td>acne_severity</td><td>string</td><td>"Clear" | "Mild" | "Moderate" | "Severe"</td></tr>
+          <tr><td>acne_coverage_pct</td><td>float</td><td>% of face area affected</td></tr>
+          <tr><td>lesions</td><td>array</td><td>Each lesion: {id, class, bbox, confidence}</td></tr>
+          <tr><td>lesion_count</td><td>integer</td><td>Total detected lesions</td></tr>
+          <tr><td>zones</td><td>object</td><td>Per-zone inflammation level (0–1 scale)</td></tr>
+          <tr><td>hyperpigmentation_pct</td><td>float</td><td>% coverage estimate</td></tr>
+          <tr><td>skin_health_score</td><td>integer</td><td>0–100 composite score</td></tr>
+          <tr><td>score_breakdown</td><td>object</td><td>{acne, lesion, pigmentation, zone} sub-scores</td></tr>
+          <tr><td>prediction_7d</td><td>object</td><td>{projected_score, delta, label}</td></tr>
+          <tr><td>prediction_30d</td><td>object</td><td>{projected_score, delta, label}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 09 SPRINT -->
+  <section class="section" id="sprint">
+    <span class="section-num">09</span>
+    <h1>7-Day Sprint Plan</h1>
+
+    <div class="timeline">
+      <div class="timeline-day">
+        <div class="timeline-day-left">
+          <div class="timeline-day-num">1</div>
+          <div class="timeline-day-label">Day</div>
+        </div>
+        <div class="timeline-day-right">
+          <div class="timeline-day-title">Foundation — CV Pipeline + Project Scaffold</div>
+          <ul class="timeline-tasks">
+            <li>FastAPI project setup, CORS, image upload endpoint</li>
+            <li>MediaPipe Face Mesh integration → zone polygon extraction</li>
+            <li>YOLOv8n inference setup (use pretrained acne model or ACNE04 fine-tune)</li>
+            <li>OpenCV LAB hyperpigmentation segmentation</li>
+            <li>React + Vite project scaffold, routing, image upload component</li>
+          </ul>
+        </div>
+      </div>
+      <div class="timeline-day">
+        <div class="timeline-day-left">
+          <div class="timeline-day-num">2</div>
+          <div class="timeline-day-label">Day</div>
+        </div>
+        <div class="timeline-day-right">
+          <div class="timeline-day-title">Visual Overlays — Annotated Image Output</div>
+          <ul class="timeline-tasks">
+            <li>HTML5 Canvas overlay compositor (all 4 layers)</li>
+            <li>Lesion bounding boxes with color coding + ID labels</li>
+            <li>Zone segmentation translucent polygons</li>
+            <li>Hyperpigmentation boundary outlines</li>
+            <li>Severity badge rendering. End of Day 2 = fully annotated image working.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="timeline-day">
+        <div class="timeline-day-left">
+          <div class="timeline-day-num">3</div>
+          <div class="timeline-day-label">Day</div>
+        </div>
+        <div class="timeline-day-right">
+          <div class="timeline-day-title">Skin Health Score + Lifestyle Questionnaire</div>
+          <ul class="timeline-tasks">
+            <li>Score computation engine (weighted formula)</li>
+            <li>Score breakdown card UI with animated bars</li>
+            <li>Lifestyle questionnaire component (skin type, sleep, diet, stress, climate)</li>
+            <li>Skin Digital Twin profile object assembly</li>
+          </ul>
+        </div>
+      </div>
+      <div class="timeline-day">
+        <div class="timeline-day-left">
+          <div class="timeline-day-num">4</div>
+          <div class="timeline-day-label">Day</div>
+        </div>
+        <div class="timeline-day-right">
+          <div class="timeline-day-title">Predictive Engine + Treatment Simulation</div>
+          <ul class="timeline-tasks">
+            <li>Rule-based prediction logic (7-day and 30-day projections)</li>
+            <li>Lifestyle modifier computation from questionnaire inputs</li>
+            <li>Treatment simulation endpoint with intervention toggles</li>
+            <li>Simulation results UI — delta visualization per intervention</li>
+          </ul>
+        </div>
+      </div>
+      <div class="timeline-day">
+        <div class="timeline-day-left">
+          <div class="timeline-day-num">5</div>
+          <div class="timeline-day-label">Day</div>
+        </div>
+        <div class="timeline-day-right">
+          <div class="timeline-day-title">AI Routine Generator + Progress Dashboard</div>
+          <ul class="timeline-tasks">
+            <li>Gemini API integration for routine generation</li>
+            <li>Structured routine display (morning/night steps)</li>
+            <li>Scan history storage (localStorage or simple JSON backend)</li>
+            <li>Progress dashboard — Chart.js line/bar charts</li>
+          </ul>
+        </div>
+      </div>
+      <div class="timeline-day">
+        <div class="timeline-day-left">
+          <div class="timeline-day-num">6</div>
+          <div class="timeline-day-label">Day</div>
+        </div>
+        <div class="timeline-day-right">
+          <div class="timeline-day-title">UI Polish + Demo Flow</div>
+          <ul class="timeline-tasks">
+            <li>Full UI pass — spacing, typography, color consistency</li>
+            <li>Bonus: GradCAM heatmap overlay</li>
+            <li>Demo flow rehearsal — identify and fix all rough edges</li>
+            <li>Deploy frontend to Vercel, backend to Railway</li>
+          </ul>
+        </div>
+      </div>
+      <div class="timeline-day">
+        <div class="timeline-day-left">
+          <div class="timeline-day-num">7</div>
+          <div class="timeline-day-label">Day</div>
+        </div>
+        <div class="timeline-day-right">
+          <div class="timeline-day-title">Testing, Buffer + Pitch Prep</div>
+          <ul class="timeline-tasks">
+            <li>Test on diverse skin tones and lighting conditions</li>
+            <li>Fix any remaining bugs — prioritize annotated image output</li>
+            <li>Record demo video (2 min max)</li>
+            <li>Write pitch narrative aligned to judge evaluation criteria</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 RISKS -->
+  <section class="section" id="risks">
+    <span class="section-num">10</span>
+    <h1>Risks & Mitigations</h1>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>YOLOv8 acne model underperforms on diverse skin tones</td>
+            <td><span class="tag tag-red">High</span></td>
+            <td>Use pretrained model from HuggingFace (acne detection models exist). Fall back to severity-by-redness-threshold if confidence low.</td>
+          </tr>
+          <tr>
+            <td>MediaPipe fails on low-quality / angled selfies</td>
+            <td><span class="tag tag-amber">Medium</span></td>
+            <td>Add face detection check at upload. Return helpful error: "Please upload a front-facing, well-lit photo."</td>
+          </tr>
+          <tr>
+            <td>Gemini API latency or quota limits</td>
+            <td><span class="tag tag-amber">Medium</span></td>
+            <td>Cache routine responses per skin profile hash. Provide static fallback routines by skin type.</td>
+          </tr>
+          <tr>
+            <td>Canvas overlay misaligned with face landmarks</td>
+            <td><span class="tag tag-amber">Medium</span></td>
+            <td>Return landmark coordinates in API response alongside annotated image. Composite server-side using Pillow to avoid client scaling bugs.</td>
+          </tr>
+          <tr>
+            <td>Predictive output criticized as scientifically unfounded</td>
+            <td><span class="tag tag-blue">Low</span></td>
+            <td>Frame all predictions with disclaimer. Add citations to reference studies in UI tooltip. Judges appreciate transparency.</td>
+          </tr>
+          <tr>
+            <td>Backend too slow for live demo</td>
+            <td><span class="tag tag-amber">Medium</span></td>
+            <td>Pre-process a set of demo images before judging. Use a cached response for the demo flow to guarantee speed.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 11 PITCH -->
+  <section class="section" id="pitch">
+    <span class="section-num">11</span>
+    <h1>Pitch Framework</h1>
+
+    <h2>Judge Demo Flow (2 Minutes)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Step</th><th>Action</th><th>What Judges See</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Upload face photo</td><td>Instant annotated image with all 4 overlay layers</td></tr>
+          <tr><td>2</td><td>Show Skin Health Score</td><td>68/100 card with dimension breakdown bars</td></tr>
+          <tr><td>3</td><td>Show "Your Skin in 7 Days"</td><td>Projected score with delta — "Likely to worsen by 12%"</td></tr>
+          <tr><td>4</td><td>Toggle "Add salicylic acid + improve sleep"</td><td>Simulation result: "Acne projected to decrease 35%"</td></tr>
+          <tr><td>5</td><td>Show AI Routine</td><td>Personalized morning/night plan from Gemini</td></tr>
+          <tr><td>6</td><td>Open Progress Dashboard</td><td>Multi-scan trend chart — "real product, not a demo"</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Three Sentences That Win</h2>
+    <blockquote>
+      "Every other team will tell you <em>what</em> your skin has. DermaTwin tells you <em>where it's going</em> and <em>what to do about it</em>. That's the difference between a classifier and a product."
+    </blockquote>
+
+    <h2>Evaluation Criteria Mapping</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Likely Judge Criterion</th><th>DermaTwin Response</th></tr></thead>
+        <tbody>
+          <tr><td>Technical implementation</td><td>Multi-model CV pipeline: YOLOv8 + MediaPipe + OpenCV + Gemini</td></tr>
+          <tr><td>Innovation / novelty</td><td>Skin digital twin + prediction + simulation — unique in the field</td></tr>
+          <tr><td>Visual output quality</td><td>4-layer annotated overlay + heatmap + Skin Health Score card</td></tr>
+          <tr><td>Real-world applicability</td><td>Progress tracking dashboard makes it a continuous-use product</td></tr>
+          <tr><td>Bonus: diverse skin tones</td><td>LAB color space + ITA melanin estimation calibrates for diversity</td></tr>
+          <tr><td>Bonus: AI recommendations</td><td>Gemini-powered routine with climate, budget, and lifestyle context</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-success" style="margin-top:40px">
+      <div class="callout-label">Final Build Priority</div>
+      <p><strong>Day 1–2 output (annotated image) must be perfect.</strong> Everything else amplifies it. A stunning annotated image with a broken simulator beats a working simulator with a mediocre overlay every time — because judges see the image first.</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Highlight active TOC section on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.toc-section a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.toc-section a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.2 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

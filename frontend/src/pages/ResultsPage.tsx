@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Eye, MapPin, Droplets } from 'lucide-react';
 import CanvasOverlay from '../components/CanvasOverlay';
@@ -7,26 +7,101 @@ import PredictionCard from '../components/PredictionCard';
 import SimulationPanel from '../components/SimulationPanel';
 import RoutineDisplay from '../components/RoutineDisplay';
 import Disclaimer from '../components/Disclaimer';
+import ProgressChart from '../components/ProgressChart';
 import type { AnalyzeResponse, RoutineResponse, LifestyleInput } from '../types';
-import { generateRoutine, saveHistory } from '../api/client';
+import type { HistoryEntry } from '../types';
+import { generateRoutine, saveHistory, getHistory } from '../api/client';
 import { getStoredUID, formatPercent } from '../utils/helpers';
 
 interface Props {
   analysisData: AnalyzeResponse | null;
   lifestyle: LifestyleInput;
+  analysisError: string | null;
+  onResetAnalysis: () => void;
 }
 
-export default function ResultsPage({ analysisData, lifestyle }: Props) {
+export default function ResultsPage({ analysisData, lifestyle, analysisError, onResetAnalysis }: Props) {
   const navigate = useNavigate();
   const [routine, setRoutine] = useState<RoutineResponse | null>(null);
   const [routineLoading, setRoutineLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [autoSaved, setAutoSaved] = useState(false);
+  const [error, setError] = useState<string | null>(analysisError);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const persistedAnalysisKey = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!analysisData) {
+    setError(analysisError);
+  }, [analysisError]);
+
+  useEffect(() => {
+    if (!analysisData && !analysisError) {
       navigate('/');
+    }
+  }, [analysisData, analysisError, navigate]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      setHistoryLoading(true);
+      try {
+        const res = await getHistory(getStoredUID());
+        setHistory(res.scans || []);
+      } catch {
+        console.error('Failed to fetch history');
+      } finally {
+        setHistoryLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, []);
+
+  useEffect(() => {
+    if (!analysisData) return;
+
+    const analysisKey = [
+      analysisData.skin_health_score,
+      analysisData.acne_severity,
+      analysisData.lesion_count,
+      analysisData.hyperpigmentation_pct,
+    ].join('-');
+
+    if (persistedAnalysisKey.current === analysisKey) {
       return;
     }
+
+    persistedAnalysisKey.current = analysisKey;
+
+    const persistAndRefreshHistory = async () => {
+      try {
+        await saveHistory(getStoredUID(), {
+          skin_health_score: analysisData.skin_health_score,
+          acne_severity: analysisData.acne_severity,
+          lesion_count: analysisData.lesion_count,
+          hyperpigmentation_pct: analysisData.hyperpigmentation_pct,
+          score_breakdown: analysisData.score_breakdown,
+        });
+        setSaved(true);
+        setAutoSaved(true);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Failed to save scan history.';
+        setError(msg);
+      }
+
+      try {
+        const res = await getHistory(getStoredUID());
+        setHistory(res.scans || []);
+      } catch {
+        console.error('Failed to refresh history');
+      }
+    };
+
+    persistAndRefreshHistory();
+  }, [analysisData]);
+
+  useEffect(() => {
+    if (!analysisData) return;
 
     // Auto-generate routine on mount
     const fetchRoutine = async () => {
@@ -66,10 +141,35 @@ export default function ResultsPage({ analysisData, lifestyle }: Props) {
         score_breakdown: analysisData.score_breakdown,
       });
       setSaved(true);
+      const res = await getHistory(getStoredUID());
+      setHistory(res.scans || []);
     } catch {
-      console.error('Failed to save scan');
+      setError('Failed to save scan history. Please try again.');
     }
   };
+
+  const handleTryAgain = () => {
+    setError(null);
+    setSaved(false);
+    setAutoSaved(false);
+    persistedAnalysisKey.current = null;
+    onResetAnalysis();
+    navigate('/');
+  };
+
+  if (error) {
+    return (
+      <div className="page">
+        <div className="container" style={{ maxWidth: 760 }}>
+          <div className="glass-card" style={{ padding: 24, marginTop: 32, border: '1px solid rgba(239, 68, 68, 0.35)' }}>
+            <h2 style={{ marginBottom: 8, color: 'var(--accent-red)' }}>Analysis Error</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 18 }}>{error}</p>
+            <button className="btn btn-primary" onClick={handleTryAgain}>Try Again</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!analysisData) return null;
 
@@ -88,7 +188,7 @@ export default function ResultsPage({ analysisData, lifestyle }: Props) {
             id="save-scan-btn"
           >
             <Save size={16} />
-            {saved ? 'Saved ✓' : 'Save to History'}
+            {saved ? (autoSaved ? 'Auto-saved ✓' : 'Saved ✓') : 'Save to History'}
           </button>
         </div>
 
@@ -171,6 +271,17 @@ export default function ResultsPage({ analysisData, lifestyle }: Props) {
             <RoutineDisplay routine={routine} />
           ) : (
             <p style={{ color: 'var(--text-muted)', padding: 20 }}>Routine generation unavailable.</p>
+          )}
+        </div>
+
+        <div className="glass-card" style={{ marginBottom: 32 }}>
+          <h3 style={{ marginBottom: 16 }}>Progress Trend</h3>
+          {historyLoading ? (
+            <div style={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="spinner" />
+            </div>
+          ) : (
+            <ProgressChart history={history} />
           )}
         </div>
 

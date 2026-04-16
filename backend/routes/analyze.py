@@ -5,7 +5,7 @@ Runs the full hybrid CV pipeline on an uploaded face image.
 
 import json
 import logging
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from typing import Optional
 
 from cv_modules.preprocessor import preprocess_image, validate_image
@@ -44,7 +44,7 @@ async def analyze_skin(
 
         is_valid, msg = validate_image(image_bytes)
         if not is_valid:
-            return {"error": msg, "status": "validation_failed"}
+            raise HTTPException(status_code=400, detail=msg)
 
         preprocessed = preprocess_image(image_bytes)
         original_pil = preprocessed["original_pil"]
@@ -154,9 +154,11 @@ async def analyze_skin(
 
         return response
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.exception("Analysis failed")
-        return {"error": str(e), "status": "analysis_failed"}
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def _compute_zone_inflammation(lesions: list, zones: dict) -> dict:

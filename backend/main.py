@@ -34,9 +34,10 @@ app = FastAPI(
 )
 
 # CORS — allow all for local development
+cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,6 +48,24 @@ app.include_router(analyze_router, prefix="/api")
 app.include_router(simulate_router, prefix="/api")
 app.include_router(routine_router, prefix="/api")
 app.include_router(history_router, prefix="/api")
+
+
+@app.on_event("startup")
+async def warm_models():
+    import logging
+
+    logger = logging.getLogger("startup")
+    logger.info("Warming up ML models...")
+
+    from cv_modules.face_mesh import get_face_mesh_analyzer
+    from cv_modules.lesion_detector import get_lesion_detector
+    from cv_modules.hybrid_model import get_hybrid_model
+
+    get_face_mesh_analyzer()
+    get_lesion_detector()
+    get_hybrid_model()
+
+    logger.info("ML models ready.")
 
 
 @app.get("/")

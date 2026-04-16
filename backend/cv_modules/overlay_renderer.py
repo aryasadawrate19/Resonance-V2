@@ -133,18 +133,22 @@ def _draw_mesh(mesh_img: Image.Image, landmarks: list):
     draw = ImageDraw.Draw(mesh_img)
     color = (*COLORS["mesh"], 76)  # 30% opacity
 
-    # Draw connections between nearby landmarks
-    # Use Delaunay-like connections for a mesh look
+    # Calculate dynamic max distance based on the width of the face
+    xs = [p[0] for p in landmarks]
+    face_w = max(xs) - min(xs)
+    # Scale the connection distance to 4% of the face width (min 5px)
+    max_dist = max(5, face_w * 0.04)
+
     n = len(landmarks)
     step = max(1, n // 100)  # Reduce density for visual clarity
 
     for i in range(0, n, step):
         x1, y1 = landmarks[i]
-        # Connect to nearby landmarks
+        # Connect to nearby landmarks dynamically
         for j in range(i + 1, min(i + 5, n)):
             x2, y2 = landmarks[j]
             dist = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
-            if dist < 30:
+            if dist < max_dist:
                 draw.line([(x1, y1), (x2, y2)], fill=color, width=1)
 
         # Draw landmark dots

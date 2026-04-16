@@ -30,7 +30,7 @@ export function getDeltaColor(delta: number): string {
 }
 
 export function generateUID(): string {
-  return 'user_' + Math.random().toString(36).substring(2, 10);
+  return 'user_' + crypto.randomUUID().replace(/-/g, '').substring(0, 12);
 }
 
 export function getStoredUID(): string {

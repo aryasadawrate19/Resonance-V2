@@ -8,6 +8,7 @@ import type { AnalyzeResponse, LifestyleInput } from './types';
 
 function App() {
   const [analysisData, setAnalysisData] = useState<AnalyzeResponse | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [lifestyle, setLifestyle] = useState<LifestyleInput>({
     skin_type: 'combination',
     sleep_quality: 3,
@@ -18,7 +19,20 @@ function App() {
 
   const handleAnalysisComplete = (data: AnalyzeResponse, lifestyleInput: LifestyleInput) => {
     setAnalysisData(data);
+    setAnalysisError(null);
     setLifestyle(lifestyleInput);
+  };
+
+  const handleAnalysisError = (error: string | null) => {
+    setAnalysisError(error);
+    if (error) {
+      setAnalysisData(null);
+    }
+  };
+
+  const handleResetAnalysis = () => {
+    setAnalysisData(null);
+    setAnalysisError(null);
   };
 
   return (
@@ -27,11 +41,11 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<HomePage onAnalysisComplete={handleAnalysisComplete} />}
+          element={<HomePage onAnalysisComplete={handleAnalysisComplete} onAnalysisError={handleAnalysisError} />}
         />
         <Route
           path="/results"
-          element={<ResultsPage analysisData={analysisData} lifestyle={lifestyle} />}
+          element={<ResultsPage analysisData={analysisData} lifestyle={lifestyle} analysisError={analysisError} onResetAnalysis={handleResetAnalysis} />}
         />
         <Route
           path="/dashboard"
